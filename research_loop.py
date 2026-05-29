@@ -4,8 +4,12 @@ import json
 from openai import OpenAI
 from prepare import load_and_split_data
 
-# Ensure your system terminal has your API key loaded: export OPENAI_API_KEY="your-key"
-client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY", "PLACEHOLDER_KEY"))
+# --- UPDATED FOR OPENROUTER FREE TIER ---
+client = OpenAI(
+    base_url="https://openrouter.ai/api/v1",
+    api_key=os.environ.get("OPENAI_API_KEY", "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") 
+)
+# ----------------------------------------
 
 def run_backtest(data_slice):
     try:
@@ -42,6 +46,18 @@ def main_research_loop():
         
     while True:
         print(f"\n--- AI Research Generation {generation} ---")
+        with open("train.py", "r") as f:
+            current_code = f.read()
+            
+        # --- UPDATED MODEL FOR FREE TIER ---
+        response = client.chat.completions.create(
+            model="meta-llama/llama-3-8b-instruct:free", 
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": f"Enhance this strategy loop:\n\n{current_code}\n\nReturn clean code changes."}
+            ]
+        )
+        # ------------------------------------
         with open("train.py", "r") as f:
             current_code = f.read()
             
